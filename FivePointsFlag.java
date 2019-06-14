@@ -3,10 +3,10 @@ import java.awt.event.*;
 
 class FivePointsFlag extends Frame{
 	WindowAdapter closing;
-	Frame myWin;
 	FlagPanet chessboard;
 	Button reBtn;
 	MouseAdapter restart;
+	Thread server, client;
 	int bW, bH, cW, cH;
 	FivePointsFlag(){
 		bW = 30; bH = 30; cW = 20; cH = 20;
@@ -38,10 +38,9 @@ class FivePointsFlag extends Frame{
 		reBtn.addMouseListener( restart );
 	}
 	
-	FivePointsFlag( int _bW, int _bH, int _cW, int _cH ){
+	FivePointsFlag( int _bW, int _bH, int _cW, int _cH ) throws InterruptedException{
 		bW = _bW; bH = _bH; cW = _cW; cH = _cH;
-		// setTitle( "New Window" );
-		chessboard = new FlagPanet( bW, bH, cW, cH );
+		chessboard = new FlagPanet( this, bW, bH, cW, cH );
 		setLocation( 100, 100 );
 		setSize( chessboard.boardW*chessboard.chessW+200, chessboard.boardH*chessboard.chessH+140 );
 		setLayout( null );
@@ -73,9 +72,28 @@ class FivePointsFlag extends Frame{
 		setTitle( title );
 	}
 	
-	FivePointsFlag( int _bW, int _bH, int _cW, int _cH, String title ){
+	FivePointsFlag( int _bW, int _bH, int _cW, int _cH, String title ) throws InterruptedException{
 		this( _bW, _bH, _cW, _cH );
 		setTitle( title );
+		
+		server = new Thread(){
+			public void run(){
+				final int buffSize = 2048;
+				byte[] buff = new byte[buffSize];
+				DatagramPacket packet = new DatagramPacket( buff, 0, buffSize );
+				DatagramSocket socket = new DatagramSocket( chessboard.myPort );
+				while( !chessboard.isOver ){
+					// status == 1: my turn ; status == 0: opponent turn 
+					switch( chessboard.status ){
+						case 0:
+							socket.receive( packet );
+							break;
+						case 1:
+							break;
+					}
+				}
+			}
+		};
 	}
 	
 }

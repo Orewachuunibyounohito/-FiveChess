@@ -12,14 +12,22 @@ class FlagPanet extends Panel implements MouseListener{
 	FivePoints p1, p2;
 	InetAddress host;
 	int hostPort, myPort;
+	TextField myP;
+	TextField[] hostInfo;
 	
-	Frame myInput;
-	Button setBtn;
+	// Frame myInput;
+	// Button setBtn;
+	myInputBox myInput;
 	
 	FlagPanet( int _boardW, int _boardH, int _chessW, int _chessH ){
 		status = MouseEvent.BUTTON1;
 		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
 		p1 = new FivePoints(); p2 = new FivePoints(); isOver = false;
+		myP = new TextField();
+		hostInfo = new TextField[2];
+		for( int i = 0; i < hostInfo.length; i++ ){
+			hostInfo[i] = new TextField();
+		}
 		setLocation( 50, 70 );
 		setLayout( null );
 		setSize( (boardW-1)*chessW+1+150, (boardH-1)*chessH+1 );
@@ -30,8 +38,44 @@ class FlagPanet extends Panel implements MouseListener{
 		turn.setLocation( getWidth()-150, 0 );
 		turn.setSize( 100, 50 );
 		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
+	}
+	
+	FlagPanet( Frame window, int _boardW, int _boardH, int _chessW, int _chessH ){
+		status = MouseEvent.BUTTON1;
+		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
+		p1 = new FivePoints(); p2 = new FivePoints(); isOver = false;
+		myP = new TextField();
+		hostInfo = new TextField[2];
+		for( int i = 0; i < hostInfo.length; i++ ){
+			hostInfo[i] = new TextField();
+		}
+		setLocation( 50, 70 );
+		setLayout( null );
+		setSize( (boardW-1)*chessW+1+150, (boardH-1)*chessH+1 );
+		this.addMouseListener( this );
 		
-			
+		turn = new Label( "Black Turn" );
+		this.add( turn );
+		turn.setLocation( getWidth()-150, 0 );
+		turn.setSize( 100, 50 );
+		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
+		if( myInputBox.myInputBoxA( window, "My Server Port", 
+									new Object[]{ "Port", myP },
+									new int[]{ 2 } ) == 1 ){
+			try{ myPort =  Integer.parseInt( myP.getText() ); }
+			catch( Exception e ){ System.out.println( "Port ERROR!" ); }
+			System.out.println( "My Port: " + myPort );
+		}
+		
+		if( myInputBox.myInputBoxA( window, "Host Information", 
+									new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] },
+									new int[]{ 2,2 } ) == 1 ){
+			try{ host = InetAddress.getByName( hostInfo[0].getText() );	}
+			catch( UnknownHostException e ){ System.out.println( "Host ERROR!" ); }
+			try{ hostPort = Integer.parseInt( hostInfo[1].getText() ); }
+			catch( Exception e ){ System.out.println( "Port ERROR!" ); }
+			System.out.println( "Host: " + host.getHostAddress() + ": " + hostPort );
+		}
 	}
 	
 	public void paint( Graphics g ){
@@ -103,29 +147,6 @@ class FlagPanet extends Panel implements MouseListener{
 		}
 		
 		return combos;
-	}
-	
-	public void createMyInput( String title, Object[] Context, int[] index ){
-		myInput = new Frame( title );
-		myInput.setSize( 300, 50 );
-		myInput.setLocation( DisplayMode.getWidth()/2, DisplayMode.getHeight()/2 );
-		myInput.setLayout( new BorderLayout( 0, 10 ) );
-		Panel HPanel = new Panel();
-		// Box VBox = createVerticalBox(), HBox = createHorizontalBox();
-		int curr;
-		for( int i = 0; i < index.length; i++ ){
-			HPanel.setSize( index[i]*(100+5)+10, 50 );
-			HPanel.setLayout( new BorderLayout( 5, 0 ) );
-			// HBox = createHorizontalBox();
-			for( int j = 0; j < index[i]; j++ ){
-				HPanel.add( Context[curr] );
-				// HBox.add( Context[curr] );
-				curr++;
-			}
-			// VBox.add( HBox );
-		}
-		myInput.setSize( myInput.getWidth(), myInput.getHeigth()+index.length*50 );
-		myInput.add( VBox );
 	}
 	
 	public void mouseClicked( MouseEvent e ){
