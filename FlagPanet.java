@@ -12,14 +12,17 @@ class FlagPanet extends Panel implements MouseListener{
 	FivePoints p1, p2;
 	InetAddress host;
 	int hostPort, myPort;
+	TextField[] hostInfo;
 	
-	Frame myInput;
-	Button setBtn;
+	// Frame myInput;
+	// Button setBtn;
+	myInputBox myInput;
 	
 	FlagPanet( int _boardW, int _boardH, int _chessW, int _chessH ){
 		status = MouseEvent.BUTTON1;
 		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
 		p1 = new FivePoints(); p2 = new FivePoints(); isOver = false;
+		hostInfo = new TextField[2];
 		setLocation( 50, 70 );
 		setLayout( null );
 		setSize( (boardW-1)*chessW+1+150, (boardH-1)*chessH+1 );
@@ -31,7 +34,31 @@ class FlagPanet extends Panel implements MouseListener{
 		turn.setSize( 100, 50 );
 		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
 		
-			
+		// createMyInput( "My server port", new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] }, new int[]{ 2,2 } );
+		// myInput = new myInputBox(  "My server port", new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] }, new int[]{ 2,2 } );
+	}
+	
+	FlagPanet( Frame window, int _boardW, int _boardH, int _chessW, int _chessH ) throws InterruptedException{
+		status = MouseEvent.BUTTON1;
+		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
+		p1 = new FivePoints(); p2 = new FivePoints(); isOver = false;
+		hostInfo = new TextField[2];
+		for( int i = 0; i < hostInfo.length; i++ ){
+			hostInfo[i] = new TextField();
+		}
+		setLocation( 50, 70 );
+		setLayout( null );
+		setSize( (boardW-1)*chessW+1+150, (boardH-1)*chessH+1 );
+		this.addMouseListener( this );
+		
+		turn = new Label( "Black Turn" );
+		this.add( turn );
+		turn.setLocation( getWidth()-150, 0 );
+		turn.setSize( 100, 50 );
+		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
+		
+		// createMyInput( "My server port", new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] }, new int[]{ 2,2 } );
+		myInput = new myInputBox( window, "My server port", new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] }, new int[]{ 2,2 } );
 	}
 	
 	public void paint( Graphics g ){
@@ -105,28 +132,71 @@ class FlagPanet extends Panel implements MouseListener{
 		return combos;
 	}
 	
-	public void createMyInput( String title, Object[] Context, int[] index ){
-		myInput = new Frame( title );
-		myInput.setSize( 300, 50 );
-		myInput.setLocation( DisplayMode.getWidth()/2, DisplayMode.getHeight()/2 );
-		myInput.setLayout( new BorderLayout( 0, 10 ) );
-		Panel HPanel = new Panel();
-		// Box VBox = createVerticalBox(), HBox = createHorizontalBox();
-		int curr;
-		for( int i = 0; i < index.length; i++ ){
-			HPanel.setSize( index[i]*(100+5)+10, 50 );
-			HPanel.setLayout( new BorderLayout( 5, 0 ) );
-			// HBox = createHorizontalBox();
-			for( int j = 0; j < index[i]; j++ ){
-				HPanel.add( Context[curr] );
-				// HBox.add( Context[curr] );
-				curr++;
-			}
-			// VBox.add( HBox );
-		}
-		myInput.setSize( myInput.getWidth(), myInput.getHeigth()+index.length*50 );
-		myInput.add( VBox );
-	}
+	// public int createMyInput( String title, Object[] Context, int[] index ) throws InterruptedException{
+		// System.out.println( index.length );
+		
+		// myInput = new Frame( title );
+		// myInput.setSize( 150, 25 );
+		// myInput.setLocation( 1000, 100 );
+		// myInput.setLayout( null );
+		// myInput.setResizable( false );
+		// Panel CenterP = new Panel(), HPanel = new Panel();
+		// CenterP.setLocation( myInput.getWidth()/4, myInput.getHeight()/4 );
+		// CenterP.setSize( myInput.getWidth()/2, myInput.getHeight()/2 );
+		// CenterP.setLayout( new GridLayout( index.length, 1, 0, 5 ) );
+		// // Box VBox = createVerticalBox(), HBox = createHorizontalBox();
+		// int curr = 0;
+		// String test;
+		// myInput.setSize( myInput.getWidth(), myInput.getHeight()+index.length*50 );
+		// CenterP.setLocation( myInput.getWidth()/4, (myInput.getHeight()-25)/4+25 );
+		// CenterP.setSize( myInput.getWidth()/2, myInput.getHeight()/2 );
+		// for( int i = 0; i < index.length; i++ ){
+			// HPanel = new Panel();
+			// // HPanel.setSize( index[i]*(50)+10, 25 );
+			// HPanel.setLayout( new GridLayout( 1, index[i], 5, 0 ) );
+			// // HBox = createHorizontalBox();
+			// for( int j = 0; j < index[i]; j++ ){
+				// // System.out.println( Context.toString() );
+				// try{
+					// test = (String)Context[curr];
+					// System.out.println( "Is String!" );
+					// System.out.println( test );
+					// HPanel.add( new Label( test ) );
+				// }
+				// catch( Exception e ){
+					// System.out.println( "Not String!" );
+					// HPanel.add( (Component)Context[curr]);
+				// }
+				// // HBox.add( Context[curr] );
+				// curr++;
+			// }
+			// CenterP.add( HPanel );
+			// // VBox.add( HBox );
+		// }
+		// myInput.add( CenterP );
+		
+		// myInput.setSize( myInput.getWidth(), myInput.getHeight()+50 );
+		// int comfirm = 0;
+		// setBtn = new Button( "OK" );
+		// setBtn.setSize( 50, 25 );
+		// setBtn.setLocation( myInput.getWidth()/2-setBtn.getWidth()/2, myInput.getHeight()-50 );
+		// setBtn.addMouseListener( new MouseAdapter(){
+			// public void mouseClicked( MouseEvent e ){
+				// if( e.getButton() == MouseEvent.BUTTON1 ){
+					// comfirm = 1;
+					// myInput.setVisible(false);
+				// }
+			// }
+		// } );
+		// myInput.add( setBtn );
+		// myInput.setVisible( true );
+		// myInput.addWindowListener( new WindowAdapter(){ public void windowClosing( WindowEvent e ){ comfirm = 0; myInput.setVisible(false); } } );
+		// while( myInput.isVisible() ){
+			// try{}
+			// catch( Exception e ){ Thread.sleep( 50 ); }
+		// }
+		// return comfirm;
+	// }
 	
 	public void mouseClicked( MouseEvent e ){
 		if( isOver == true ) return;
