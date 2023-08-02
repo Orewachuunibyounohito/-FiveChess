@@ -7,19 +7,28 @@ class FlagPanet extends Panel implements MouseListener{
 	int x, y;
 	int chessW, chessH, boardW, boardH;
 	int status;
-	boolean isOver;
+	boolean isStart, isOver;
 	Label turn;
 	FivePoints p1, p2;
 	InetAddress host;
 	int hostPort, myPort;
+	TextField myP;
+	TextField[] hostInfo;
+	FivePointsFlag myFrame;
 	
-	Frame myInput;
-	Button setBtn;
+	// Frame myInput;
+	// Button setBtn;
+	myInputBox myInput;
 	
 	FlagPanet( int _boardW, int _boardH, int _chessW, int _chessH ){
 		status = MouseEvent.BUTTON1;
 		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
 		p1 = new FivePoints(); p2 = new FivePoints(); isOver = false;
+		myP = new TextField();
+		hostInfo = new TextField[2];
+		for( int i = 0; i < hostInfo.length; i++ ){
+			hostInfo[i] = new TextField();
+		}
 		setLocation( 50, 70 );
 		setLayout( null );
 		setSize( (boardW-1)*chessW+1+150, (boardH-1)*chessH+1 );
@@ -30,8 +39,59 @@ class FlagPanet extends Panel implements MouseListener{
 		turn.setLocation( getWidth()-150, 0 );
 		turn.setSize( 100, 50 );
 		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
+	}
+	
+	FlagPanet( FivePointsFlag _myFrame, int _boardW, int _boardH, int _chessW, int _chessH ){
+		status = 0;
+		myFrame = _myFrame;
+		chessW = _chessW; chessH = _chessH; boardW = _boardW; boardH = _boardH;
+		p1 = new FivePoints(); p2 = new FivePoints(); isStart = false; isOver = false;
+		myP = new TextField();
+		hostInfo = new TextField[2];
+		for( int i = 0; i < hostInfo.length; i++ ){
+			hostInfo[i] = new TextField();
+		}
+		setLocation( 50, 70 );
+		setLayout( null );
+		setSize( (boardW-1)*chessW+1, (boardH-1)*chessH+1 );
+		this.addMouseListener( this );
 		
-			
+		turn = new Label( "Black Turn" );
+		this.add( turn );
+		turn.setLocation( getWidth()/2, -50 );
+		turn.setSize( 100, 50 );
+		turn.setFont( new Font( "Times New Roman", 0, 16 ) );
+		if( myInputBox.myInputBoxA( myFrame, "My Server Port", 
+									new Object[]{ "Port", myP },
+									new int[]{ 2 } ) == 1 ){
+			try{ myPort =  Integer.parseInt( myP.getText() ); }
+			catch( Exception e ){ System.out.println( "Port ERROR!" ); }
+			System.out.println( "My Port: " + myPort );
+		}
+		
+		if( myInputBox.myInputBoxA( myFrame, "Host Information", 
+									new Object[]{ "Host", hostInfo[0], "HostPort", hostInfo[1] },
+									new int[]{ 2,2 } ) == 1 ){
+			try{ host = InetAddress.getByName( hostInfo[0].getText() );	}
+			catch( UnknownHostException e ){ System.out.println( "Host ERROR!" ); }
+			try{ hostPort = Integer.parseInt( hostInfo[1].getText() ); }
+			catch( Exception e ){ System.out.println( "Port ERROR!" ); }
+			System.out.println( "Host: " + host.getHostAddress() + ": " + hostPort );
+		}
+	}
+	
+	public void showChess( FivePoints Src, Graphics g ){
+		FivePoint temp = Src.getHead();
+		while( temp != null ){
+			g.setColor( Src.clr );
+			g.fillOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
+			if( Src.clr.getRed() == 0 && Src.clr.getGreen() == 0 && Src.clr.getBlue() == 0 ){}
+			else{
+				g.setColor( new Color( 0, 0, 0 ) );
+				g.drawOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
+			}
+			temp = temp.getNext();
+		}
 	}
 	
 	public void paint( Graphics g ){
@@ -41,20 +101,24 @@ class FlagPanet extends Panel implements MouseListener{
 		for( int i = 0; i < boardW-1; i++ ){
 			g.drawLine( i*chessW+chessW/2, 0+chessH/2, i*chessW+chessW/2, (boardH-1)*chessH-chessH/2 );
 		}
-		FivePoint temp = p1.getHead();
-		g.setColor( new Color( 0, 0, 0 ) );
-		while( temp != null ){
-			g.fillOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
-			temp = temp.getNext();
-		}
-		temp = p2.getHead();
-		while( temp != null ){
-			g.setColor( new Color( 255, 255, 255 ) );
-			g.fillOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
-			g.setColor( new Color( 0, 0, 0 ) );
-			g.drawOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
-			temp = temp.getNext();
-		}
+		
+		showChess( p1, g );
+		showChess( p2, g );
+		// FivePoint temp = p1.getHead();
+		// g.setColor( p1.clr );
+		// if( p1.clr )
+		// while( temp != null ){
+			// g.fillOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
+			// temp = temp.getNext();
+		// }
+		// temp = p2.getHead();
+		// while( temp != null ){
+			// g.setColor( new Color( 255, 255, 255 ) );
+			// g.fillOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
+			// g.setColor( new Color( 0, 0, 0 ) );
+			// g.drawOval( temp.getX()*chessW+1, temp.getY()*chessH+1, chessW-2, chessH-2 );
+			// temp = temp.getNext();
+		// }
 		g.setColor( new Color( 0, 0, 0 ) );
 	}
 	
@@ -105,32 +169,10 @@ class FlagPanet extends Panel implements MouseListener{
 		return combos;
 	}
 	
-	public void createMyInput( String title, Object[] Context, int[] index ){
-		myInput = new Frame( title );
-		myInput.setSize( 300, 50 );
-		myInput.setLocation( DisplayMode.getWidth()/2, DisplayMode.getHeight()/2 );
-		myInput.setLayout( new BorderLayout( 0, 10 ) );
-		Panel HPanel = new Panel();
-		// Box VBox = createVerticalBox(), HBox = createHorizontalBox();
-		int curr;
-		for( int i = 0; i < index.length; i++ ){
-			HPanel.setSize( index[i]*(100+5)+10, 50 );
-			HPanel.setLayout( new BorderLayout( 5, 0 ) );
-			// HBox = createHorizontalBox();
-			for( int j = 0; j < index[i]; j++ ){
-				HPanel.add( Context[curr] );
-				// HBox.add( Context[curr] );
-				curr++;
-			}
-			// VBox.add( HBox );
-		}
-		myInput.setSize( myInput.getWidth(), myInput.getHeigth()+index.length*50 );
-		myInput.add( VBox );
-	}
-	
 	public void mouseClicked( MouseEvent e ){
-		if( isOver == true ) return;
-		if( e.getButton() != status ) return;
+		if( !isStart ) return; 
+		if( isOver ) return;
+		if( status != 0 ) return;
 		if( e.getX() < 0 || e.getX() > (boardW-1)*chessW || e.getY() < 0 || e.getY() > (boardH-1)*chessH ) return;
 		int px, py;
 		px = e.getX() / chessW; py = e.getY() / chessH;
@@ -139,31 +181,32 @@ class FlagPanet extends Panel implements MouseListener{
 		if( overlapping( p1, temp ) ) return;
 		switch( e.getButton() ){
 			case MouseEvent.BUTTON1:
-				status = MouseEvent.BUTTON3;
-				turn.setText( "White Turn" );
+				status = 1;
+				// turn.setText( "White Turn" );
 				p1.add( temp );
 				repaint();
 				for( int i = 0; i < 4; i++ ){
 					if( checkCombos( p1, temp, i, 1 ) >= 5 ){
-						System.out.println( "Black Win!" );
+						System.out.println( "You Win!" );
 						isOver = true;
 						break;
 					}
 				}
+				myFrame.clientEvent = 2;
 				break;
-			case MouseEvent.BUTTON3:
-				status = MouseEvent.BUTTON1;
-				turn.setText( "Black Turn" );
-				p2.add( temp );
-				repaint();
-				for( int i = 0; i < 4; i++ ){
-					if( checkCombos( p2, temp, i, 2 ) >= 5 ){
-						System.out.println( "White Win!" );
-						isOver = true;
-						break;
-					}
-				}
-				break;
+			// case MouseEvent.BUTTON3:
+				// status = 0;
+				// // turn.setText( "Black Turn" );
+				// p2.add( temp );
+				// repaint();
+				// for( int i = 0; i < 4; i++ ){
+					// if( checkCombos( p2, temp, i, 2 ) >= 5 ){
+						// System.out.println( "White Win!" );
+						// isOver = true;
+						// break;
+					// }
+				// }
+				// break;
 		}
 		
 		
